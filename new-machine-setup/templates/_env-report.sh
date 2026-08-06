@@ -10,16 +10,29 @@ MARK_END='# <<< new-machine-setup <<<'
 
 # Rewrite the marked block in an rc file. Idempotent: the old block is deleted
 # before the new one is appended, so re-runs never stack duplicates.
-# Usage: env_block_write <rcfile> 'VAR=value' ['VAR2=value2' ...]
+# Usage: env_block_write <rcfile> 'VAR=value' ['PATH+=/some/dir' ...]
+#
+# The PATH+= form prepends a directory instead of overwriting, and guards on
+# membership so re-sourcing an rc file inside one shell cannot stack duplicates.
 env_block_write() {
   local rc="$1"; shift
   [ -f "$rc" ] || return 0
   sed -i "\|$MARK_START|,\|$MARK_END|d" "$rc"
   {
     printf '\n%s\n' "$MARK_START"
-    local kv
+    local kv dir
     for kv in "$@"; do
-      printf 'export %s="%s"\n' "${kv%%=*}" "${kv#*=}"
+      case "$kv" in
+        PATH+=*)
+          dir="${kv#PATH+=}"
+          # Trailing marker comment is what env_report parses back out.
+          printf 'case ":$PATH:" in *":%s:"*) ;; *) export PATH="%s:$PATH" ;; esac  # path: %s\n' \
+            "$dir" "$dir" "$dir"
+          ;;
+        *)
+          printf 'export %s="%s"\n' "${kv%%=*}" "${kv#*=}"
+          ;;
+      esac
     done
     printf '%s\n' "$MARK_END"
   } >> "$rc"
@@ -29,12 +42,16 @@ env_block_write() {
 # live in the current shell, and whether the path it names exists.
 env_report() {
   local rcs=("$HOME/.bashrc" "$HOME/.zshrc")
-  local names=() rc line name val
+  local names=() dirs=() rc line name val dir
 
   for rc in "${rcs[@]}"; do
     [ -f "$rc" ] || continue
     while IFS= read -r line; do
       case "$line" in
+        *'# path: '*)
+          dir="${line##*# path: }"
+          case " ${dirs[*]-} " in *" $dir "*) ;; *) dirs+=("$dir") ;; esac
+          ;;
         export\ *=*)
           name="${line#export }"; name="${name%%=*}"
           case " ${names[*]-} " in *" $name "*) ;; *) names+=("$name") ;; esac
@@ -45,14 +62,14 @@ env_report() {
 
   printf '\n\033[1mEnvironment managed by this setup\033[0m\n'
 
-  if [ ${#names[@]} -eq 0 ]; then
+  if [ ${#names[@]} -eq 0 ] && [ ${#dirs[@]} -eq 0 ]; then
     printf '  \033[90m(nothing yet — 2-shell-and-conda.sh writes the first block)\033[0m\n\n'
     return 0
   fi
 
   # One block per variable rather than a table: paths are long and unbounded,
   # and a column layout silently mangles them.
-  for name in "${names[@]}"; do
+  for name in ${names[@]+"${names[@]}"}; do
     local where="" first_val="" conflict=0 seen=0
     for rc in "${rcs[@]}"; do
       [ -f "$rc" ] || continue
@@ -94,6 +111,36 @@ env_report() {
     esac
   done
 
+  # PATH entries are prepends, not assignments, so they are reported by
+  # membership rather than by value — a string compare against $PATH would
+  # always read as "differs" and mean nothing.
+  for dir in ${dirs[@]+"${dirs[@]}"}; do
+    local where=""
+    for rc in "${rcs[@]}"; do
+      [ -f "$rc" ] || continue
+      sed -n "\|$MARK_START|,\|$MARK_END|p" "$rc" | grep -qF "# path: $dir" \
+        && where="${where:+$where, }$(basename "$rc")"
+    done
+
+    printf '\n  \033[1mPATH\033[0m + %s\n' "$dir"
+    printf '      written to:  %s\n' "$where"
+
+    case ":$PATH:" in
+      *":$dir:"*) printf '      in shell:    \033[32myes\033[0m\n' ;;
+      *)          printf '      in shell:    \033[33mnot yet\033[0m\n' ;;
+    esac
+
+    if [ -d "$dir" ]; then
+      printf '      path:        exists'
+      # An empty ~/.local/bin means the tool that was supposed to land there
+      # never did — worth saying, since the PATH entry itself looks healthy.
+      [ -x "$dir/claude" ] && printf ' (claude found)'
+      printf '\n'
+    else
+      printf '      path:        \033[31mDOES NOT EXIST\033[0m\n'
+    fi
+  done
+
   # conda writes its own block; report it but never touch it.
   local conda_rcs=""
   for rc in "${rcs[@]}"; do
@@ -104,8 +151,11 @@ env_report() {
 
   # Only nag about reloading if something is actually stale.
   local stale=0
-  for name in "${names[@]}"; do
+  for name in ${names[@]+"${names[@]}"}; do
     [ -n "${!name-}" ] || stale=1
+  done
+  for dir in ${dirs[@]+"${dirs[@]}"}; do
+    case ":$PATH:" in *":$dir:"*) ;; *) stale=1 ;; esac
   done
   if [ "$stale" -eq 1 ]; then
     printf '\n  \033[90mNot live in this shell yet. Load it with:  source ~/.bashrc   (or: exec zsh)\033[0m\n'

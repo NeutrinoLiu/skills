@@ -97,7 +97,9 @@ substituting the `@@PLACEHOLDER@@` tokens. Then `chmod +x` all of them.
 others or every script fails at startup. It provides two functions:
 
 - `env_block_write <rc> VAR=value ...` — rewrites the marked block in an rc file,
-  deleting the old one first so re-runs never stack duplicates.
+  deleting the old one first so re-runs never stack duplicates. A `PATH+=<dir>`
+  argument prepends instead of assigning, guarded on membership so sourcing an
+  rc file twice in one shell cannot stack duplicate entries either.
 - `env_report` — **called at the end of every script**, so any run that touches
   the environment shows the consolidated result rather than making the user go
   read `.bashrc`. It prints each managed variable with its value, which rc files
@@ -127,8 +129,17 @@ The numbering is the run order, and the boundaries are real:
 1. **Packages first** — everything downstream needs `zsh`, `git`, `curl`.
 2. **Shell and conda second** — oh-my-zsh *replaces* `~/.zshrc` (moving any
    existing one to `.zshrc.pre-oh-my-zsh`), so it must land before conda's init
-   block and the `HF_HOME` export, or those are silently orphaned. This is why
-   they share one script, in that order.
+   block, the `HF_HOME` export, and the `~/.local/bin` PATH entry, or those are
+   silently orphaned. This is why they share one script, in that order.
+
+   `~/.local/bin` is not incidental: it is where the Claude Code native
+   installer puts `claude`. Ubuntu's stock `.bashrc` adds that directory, but
+   the `.zshrc` oh-my-zsh writes has the equivalent line **commented out** — so
+   `claude` works in bash and vanishes on the first `exec zsh`. The script
+   therefore manages the PATH entry for both rc files; the membership guard
+   makes it a no-op wherever it is already present. If no `claude` binary is
+   found the script wires PATH anyway and prints the install one-liner rather
+   than installing anything itself.
 3. **Logins third** — needs `gh` and a `pip` from step 1–2, and needs a human.
 4. **NVIDIA last** — it is the only reboot. Putting it at the end means the user
    reboots once, at the end, instead of in the middle.

@@ -66,11 +66,24 @@ fi
 # rather than append, and removal is a single sed.
 mkdir -p "$HF_HOME_DIR"
 
+# ~/.local/bin is where the Claude Code native installer puts `claude`. Ubuntu's
+# stock .bashrc adds it; the .zshrc oh-my-zsh just wrote leaves it commented
+# out — so `claude` works in bash and disappears the moment you `exec zsh`.
+# Managing it here fixes zsh and is a no-op for bash (the guard skips a dir
+# already on PATH).
+LOCAL_BIN="$HOME/.local/bin"
+mkdir -p "$LOCAL_BIN"
+
 for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
   [ -f "$rc" ] || continue
-  env_block_write "$rc" "HF_HOME=$HF_HOME_DIR"
+  env_block_write "$rc" "HF_HOME=$HF_HOME_DIR" "PATH+=$LOCAL_BIN"
   info "environment block written to $rc"
 done
+
+if [ ! -x "$LOCAL_BIN/claude" ] && ! command -v claude >/dev/null 2>&1; then
+  warn "claude not found — PATH is wired, but install it with:"
+  warn "  curl -fsSL https://claude.ai/install.sh | bash"
+fi
 
 # --- report ---------------------------------------------------------------
 env_report

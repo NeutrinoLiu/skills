@@ -5,7 +5,9 @@ A Claude Code skill for provisioning a fresh Linux box: oh-my-zsh · global
 NVIDIA driver.
 
 Assumes Claude Code is already installed — it's the first thing on the box, and
-it's what runs this skill.
+it's what runs this skill. It does keep `claude` working *after* the switch to
+zsh: oh-my-zsh's fresh `.zshrc` leaves `~/.local/bin` off `PATH`, so without
+this the binary disappears on the first `exec zsh`.
 
 ## How it works
 
@@ -60,7 +62,7 @@ global `CLAUDE.md`, and generates the scripts. Then:
 ```bash
 cd ~/Desktop/init_setup
 ./1-packages.sh          # sudo — base packages
-./2-shell-and-conda.sh   # oh-my-zsh, miniconda, HF_HOME
+./2-shell-and-conda.sh   # oh-my-zsh, miniconda, HF_HOME, ~/.local/bin on PATH
 exec zsh                 # load the new shell and environment
 ./3-logins.sh            # interactive: hugging face, github
 ./4-nvidia.sh            # sudo — driver, then: sudo reboot
