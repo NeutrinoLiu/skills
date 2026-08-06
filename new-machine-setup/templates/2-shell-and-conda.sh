@@ -53,12 +53,13 @@ fi
 info "wiring conda into bash and zsh"
 "$CONDA_PREFIX_DIR/bin/conda" init bash zsh >/dev/null
 
-# Keep (base) out of every new shell — opt in with `conda activate base`.
+# Activate (base) in every new shell, so `python`/`pip` mean conda's from the
+# moment a terminal opens rather than the system ones.
 # The key was renamed auto_activate_base -> auto_activate (conda 25.x). Newer
 # conda still honours the old name as an alias, but that will not last, and
 # older conda does not know the new one — so try new, fall back to old.
-if ! "$CONDA_PREFIX_DIR/bin/conda" config --set auto_activate false 2>/dev/null; then
-  "$CONDA_PREFIX_DIR/bin/conda" config --set auto_activate_base false
+if ! "$CONDA_PREFIX_DIR/bin/conda" config --set auto_activate true 2>/dev/null; then
+  "$CONDA_PREFIX_DIR/bin/conda" config --set auto_activate_base true
 fi
 
 # --- environment block ----------------------------------------------------
