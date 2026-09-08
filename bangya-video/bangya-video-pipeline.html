@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bangya-video pipeline</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#ffffff; --ink:#1d1f24; --muted:#6b7280;
+    --line:#d8dade; --accent:#3d5afe; --accent-soft:#e8ecff;
+    --lane-b:#0e9f6e; --lane-b-soft:#e3f5ee;
+    --lane-c:#b7791f; --lane-c-soft:#faf0dc;
+    --file:#eceef2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15171c; --card:#1f2229; --ink:#e8eaf0; --muted:#9aa1ad;
+      --line:#363b45; --accent:#7c93ff; --accent-soft:#2a3050;
+      --lane-b:#4cc596; --lane-b-soft:#1d3a30;
+      --lane-c:#d9a441; --lane-c-soft:#3a3120;
+      --file:#2a2e37;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:40px 20px 64px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 32px;max-width:64ch}
+  .sub code{background:var(--file);padding:1px 6px;border-radius:5px;font-size:13px}
+
+  .lanes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px}
+  .lane-head{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    padding:8px 12px;border-radius:8px;margin-bottom:14px;text-align:center}
+  .lh-a{background:var(--accent-soft);color:var(--accent)}
+  .lh-b{background:var(--lane-b-soft);color:var(--lane-b)}
+  .lh-c{background:var(--lane-c-soft);color:var(--lane-c)}
+
+  .col{display:flex;flex-direction:column}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;position:relative}
+  .card h3{margin:0 0 4px;font-size:14.5px;display:flex;gap:8px;align-items:baseline}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .num{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);
+    border-radius:6px;padding:1px 6px;flex:none}
+  .col-b .num{color:var(--lane-b);background:var(--lane-b-soft)}
+  .col-c .num{color:var(--lane-c);background:var(--lane-c-soft)}
+  .file{display:inline-block;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--file);border-radius:5px;padding:0 6px;margin:6px 4px 0 0}
+
+  .down{align-self:center;height:26px;width:2px;background:var(--line);position:relative;flex:none}
+  .down::after{content:"";position:absolute;bottom:-1px;left:-4px;border:5px solid transparent;
+    border-top-color:var(--line);border-bottom:none}
+
+  .handoff{margin:8px 0;border:1.5px dashed var(--line);border-radius:10px;
+    padding:8px 12px;font-size:12.5px;color:var(--muted);text-align:center}
+  .handoff b{color:var(--ink)}
+  .spacer{flex:1}
+
+  .loop{border-color:var(--accent)}
+  .loop-tag{position:absolute;top:-10px;right:12px;font-size:11px;font-weight:700;
+    background:var(--accent);color:#fff;border-radius:99px;padding:1px 9px}
+  .stop{border-color:var(--lane-c)}
+  .stop .loop-tag{background:var(--lane-c)}
+
+  .legend{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;
+    color:var(--muted);font-size:13px}
+  .legend b{color:var(--ink)}
+
+  @media (max-width:760px){
+    .lanes{grid-template-columns:1fr}
+    .lane-head{margin-top:22px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>bangya-video pipeline</h1>
+  <p class="sub">How a paper becomes a five-minute narrated video. One source file,
+  <code>build/cutdata.py</code>, holds every cut's slide and script; <code>deck.html</code> is
+  both the checkpoint the user approves and the frame the renderer screenshots.</p>
+
+  <div class="lanes">
+    <div class="col col-a">
+      <div class="lane-head lh-a">Main session · plan, checkpoint, assemble</div>
+
+      <div class="card">
+        <h3><span class="num">1</span>The contract</h3>
+        <p>Cuts in markdown → HTML deck with time and script per cut → assets and TTS →
+        assemble. Set by the user in the first message.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">2</span>Cut sheet</h3>
+        <p>Movements, sixteen cuts, the 480p rule first: 32 px floor, ~30 words, one idea,
+        video panels do the arguing. Failures before the fix.</p>
+        <span class="file">cuts.md</span><span class="file">build/cutdata.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card stop"><span class="loop-tag">⏸ user reviews</span>
+        <h3><span class="num">3</span>Deck checkpoint</h3>
+        <p>Every cut as a 1920 × 1000 frame with its hold and script beside it, 480p toggle.
+        Decisions taken here: TTS voice, captions, cuts to rebuild.</p>
+        <span class="file">deck.html</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">4</span>Assemble</h3>
+        <p>Loop the PNG, overlay each clip into its probed box, burn the one-line caption
+        strip from an ASS, concat, two-pass loudnorm, mux. Two encoders, not four.</p>
+        <span class="file">build/assemble.py</span><span class="file">cuts/cutNN.mp4</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card loop"><span class="loop-tag">⟳ repeat</span>
+        <h3><span class="num">5</span>Feedback rounds</h3>
+        <p>Terse bullets: correspondence, cropping, stills vs rotation, attributions, title
+        wording. Edit the source, re-run only the stages touched, sample the final file.</p>
+        <span class="file">video_feedbacks/feedback_N.md</span>
+      </div>
+    </div>
+
+    <div class="col col-b">
+      <div class="lane-head lh-b">Renderers · scripted, in parallel</div>
+
+      <div class="card">
+        <h3><span class="num">R1</span>Slide frames</h3>
+        <p>Chrome screenshots each cut with the videos stripped; a DOM probe writes every
+        panel's box, so overlay coordinates are never typed. Reports overflow.</p>
+        <span class="file">build/shots.py</span><span class="file">boxes.json</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">R2</span>Turntables</h3>
+        <p>Blender orbits — textured, coordinate map, white shell — for what is 3D.
+        Still sheets of N angles for what is a cache of stills.</p>
+        <span class="file">build/orbit.py</span><span class="file">build/orbits.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">R3</span>Condition streams</h3>
+        <p>Cut from the dataset by shared frame index, spread across the take to match the
+        result — synced by construction, nothing cropped. Depth colourised on a held range.</p>
+        <span class="file">build/conds.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">R4</span>Narration</h3>
+        <p>edge-tts per cut; the measured duration sets each hold (lead + speech + tail);
+        word-boundary srt feeds the captions.</p>
+        <span class="file">build/tts.py</span><span class="file">audio/timing.json</span>
+      </div>
+
+      <div class="handoff">frames, clips, timings ⇢ feed <b>Assemble (4)</b></div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="col col-c">
+      <div class="lane-head lh-c">Verify · numbers and eyes</div>
+
+      <div class="card">
+        <h3><span class="num">V1</span>Layout</h3>
+        <p>Every cut probed in the DOM: nothing outside its frame, no block colliding with the
+        next. The check itself tested by reverting a cut to the broken value.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">V2</span>Timeline &amp; sync</h3>
+        <p>A frame at each cut's midpoint from the final encode against its slide PNG;
+        speech onset by silencedetect, same offset on every cut.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">V3</span>480p read-through</h3>
+        <p>Every cut downsampled to 854 × 480 from the final file and read.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">V4</span>Watch it</h3>
+        <p>Sampled frames and a real watch-through. The bug that scales a sheet to 26 %
+        passes every number.</p>
+        <span class="file">5222_Liu_ByteLOOM_5min.mp4</span>
+      </div>
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>Reference build:</b> ByteLOOM, ECCV 2026 — 16 cuts, 4:58, 1920 × 1080, delivered in one
+    evening and revised over one day (captions in three rounds, turntables, one feedback file).
+    Full record in <b>TRAJECTORY.md</b>; the reusable process in <b>SKILL.md</b>.
+  </div>
+</div>
+</body>
+</html>

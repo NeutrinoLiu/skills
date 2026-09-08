@@ -1,0 +1,348 @@
+/* ByteLOOM presentation deck — 1920 x 1000 frames, sized to survive 480p.
+   The video is 1920x1080; the bottom 80 px is reserved for the burned-in script, so the
+   slide itself is laid out at 1920x1000. --fh is the only knob: set it to 1080px and every
+   panel height below returns to the full-bleed geometry.
+   Identity from the poster: Newsreader over Karla, slate ink, ochre accent.
+   TYPE FLOOR: 32px. At 854x480 that is 14px. Nothing on a frame goes below it. */
+
+:root{
+  --ink:#2B3440; --mute:#5F6873; --ochre:#A9760F; --hot:#8C4A0B;
+  --paper:#FBFAF8; --band:#F1EFEA; --rule:#D6DAE0; --wash:#FBF4E7;
+  --m:76px;                     /* frame side margin */
+  --fh:1000px;                  /* frame height — 1080 less the script strip */
+  --vcut:calc(1080px - var(--fh));   /* how much shorter than full bleed every panel runs */
+}
+*{box-sizing:border-box;min-width:0}
+img,video{display:block;max-width:100%}
+
+/* ===================== frame scaffold ===================== */
+.frame{position:relative;width:1920px;height:var(--fh);overflow:hidden;
+  background:var(--paper);color:var(--ink);
+  font-family:"Karla",system-ui,sans-serif;font-size:40px;line-height:1.3;
+  display:flex;flex-direction:column}
+
+.top{flex:0 0 128px;display:flex;align-items:center;gap:26px;
+  padding:0 var(--m);border-bottom:3px solid var(--ink)}
+.top h2{font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:66px;
+  letter-spacing:-.015em;margin:0;line-height:1;white-space:nowrap}
+.top .mv{margin-left:auto;font-size:32px;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ochre);white-space:nowrap}
+
+.stage{flex:1;padding:40px var(--m) 26px;display:flex;flex-direction:column;
+  gap:28px;min-height:0}
+.frame.bare .stage{padding:0;gap:0}
+
+.bot{flex:0 0 14px;padding:0}
+.rail{height:8px;background:var(--rule);position:relative}
+.rail i{position:absolute;left:0;top:0;height:100%;background:var(--ochre)}
+
+/* ===================== shared type ===================== */
+h3{font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:60px;line-height:1;
+  margin:0 0 18px;letter-spacing:-.014em}
+h4{font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:44px;line-height:1.04;
+  margin:6px 0 0;letter-spacing:-.01em}
+
+.lead{font-size:46px;line-height:1.24;margin:0;color:var(--ink);text-wrap:balance}
+.lead b{font-weight:700}
+.lead.center{text-align:center}
+.lead.bad b{color:var(--ochre)}
+
+.cap{font-size:34px;line-height:1.26;color:var(--mute);margin:14px 0 0}
+
+.kicker{font-size:38px;line-height:1.24;margin:0;padding:20px 28px;text-align:center;
+  background:var(--band);color:var(--ink);flex:0 0 auto;text-wrap:balance}
+.kicker b{font-weight:700;color:var(--hot)}
+.kicker.big{font-size:42px}
+
+.nb{white-space:nowrap}
+.ochre{color:var(--ochre)}
+.bigarrow{font-size:76px;line-height:.8;color:var(--rule);flex:0 0 auto;align-self:center;
+  font-style:normal}
+
+/* ===================== video panels ===================== */
+.vp{position:relative;background:var(--band);overflow:hidden}
+.vp video{position:absolute;inset:0;width:100%;height:100%}
+.vp[data-fit="cover"] video{object-fit:cover}
+.vp[data-fit="contain"] video{object-fit:contain}
+
+/* The source clips are portrait 576x1024. Panel size is driven off one variable, --vh,
+   rather than off `flex` + `aspect-ratio`: with the aspect locked, an auto-width panel takes
+   its width from the caption instead, and any panel wider than its caption then overflows
+   into its neighbours. Fixing the height and computing the width keeps every box exact —
+   and the ffmpeg overlay reads the same box back out of the DOM. */
+.pan{margin:0;display:flex;flex-direction:column;align-items:center;
+  flex:0 0 auto;width:calc(var(--vh) * 0.5625)}
+.pan .vp{width:100%;height:var(--vh);flex:0 0 auto}
+.pan figcaption{font-size:34px;line-height:1.14;margin-top:14px;color:var(--mute);
+  font-weight:600;text-align:center;text-wrap:balance}
+.pan figcaption b{color:var(--ink);font-weight:700}
+.pan.ours .vp{outline:6px solid var(--ink);outline-offset:-3px}
+.pan.ours figcaption{color:var(--ink)}
+.pan.bad .vp{outline:6px solid var(--ochre);outline-offset:-3px}
+.pan.bad figcaption{color:var(--hot)}
+.pan.bad figcaption b{color:var(--hot)}
+
+.striprow{--vh:calc(690px - var(--vcut));flex:1;display:flex;gap:34px;justify-content:center;
+  align-items:flex-start;min-height:0}
+.striprow.four{--vh:calc(636px - var(--vcut));gap:30px}
+.striprow.two-up{--vh:calc(764px - var(--vcut));gap:48px}
+
+/* ===================== 01 title ===================== */
+.titlebox{flex:1;padding:46px var(--m) 0;display:flex;flex-direction:column;min-height:0}
+.venue{font-size:34px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ochre);margin:0}
+.wordmark{font-family:"Newsreader",Georgia,serif;font-size:80px;font-weight:700;
+  margin:28px 0 0;letter-spacing:-.02em;line-height:1}
+.wordmark em{font-style:normal;color:var(--ochre)}
+.wordmark.sm{font-size:62px;margin:0 0 34px}
+/* the paper's title verbatim, so it wants three lines rather than two */
+.big{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:68px;line-height:1.06;
+  letter-spacing:-.022em;margin:18px 0 52px;text-wrap:balance}
+.auth{font-size:38px;font-weight:600;margin:0 0 0}
+.aff{font-size:32px;color:var(--mute);margin:12px 0 auto}
+/* cells locked to the clips' own 9:16, so the filmstrip crops nothing */
+.strip{flex:0 0 calc(330px - var(--vcut));display:flex;gap:8px;
+  justify-content:center;background:var(--ink)}
+.strip .vp{height:100%;aspect-ratio:9/16;flex:0 0 auto}
+.strip .vp{flex:1;background:var(--ink)}
+
+/* ===================== 02 the task ===================== */
+.flowrow{flex:1;display:flex;gap:40px;align-items:stretch;justify-content:center;min-height:0}
+.incol{display:flex;flex-direction:column;gap:22px;flex:0 0 620px;min-height:0}
+.incard{flex:1;display:flex;align-items:center;gap:30px;background:var(--band);
+  padding:0 32px 0 0;min-height:0}
+.incard img{width:230px;height:100%;object-fit:cover;background:#fff;flex:0 0 230px}
+.incard img.fit{object-fit:contain;background:#fff;padding:10px}
+.incard b{font-size:44px;font-weight:700}
+.flowrow{--vh:calc(660px - var(--vcut));gap:34px}
+.flowrow .pan .vp{background:#fff}
+.flowrow .pan img{width:100%;height:100%;object-fit:contain}
+
+/* ===================== 04 bars ===================== */
+.bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px}
+.brow{display:flex;align-items:center;gap:30px}
+.bl{flex:0 0 400px;font-size:40px;font-weight:600;text-align:right;color:var(--mute)}
+.bt{flex:1;height:76px;background:#E8E5DF;position:relative}
+.bt i{position:absolute;left:0;top:0;height:100%;background:var(--ink);min-width:14px}
+.bt i.hot{background:var(--ochre)}
+.bv{flex:0 0 220px;font-size:60px;font-weight:800;font-variant-numeric:tabular-nums;
+  line-height:1}
+
+/* ===================== 05 more views ===================== */
+.halves{--vh:calc(600px - var(--vcut));flex:1;display:flex;gap:56px;align-items:flex-start;
+  justify-content:center;min-height:0}
+.refcol{margin:0;display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
+.refcol img{height:var(--vh);width:auto}
+.refcol figcaption{font-size:34px;line-height:1.14;margin-top:14px;color:var(--mute);
+  font-weight:600;text-align:center}
+
+/* ===================== 06 the pair ===================== */
+.pairbig{flex:1;display:flex;gap:40px;align-items:center;justify-content:center;min-height:0}
+.pairbig figure{margin:0;flex:1;display:flex;flex-direction:column;min-height:0;max-width:760px}
+.pairbig img{width:100%;height:auto;flex:0 0 auto}
+/* the turntables are square renders; fix the height so the pair stays on the frame */
+.pairbig{--ph:calc(550px - var(--vcut))}
+.pairbig figure{flex:0 0 auto}
+.pairbig .vp{width:var(--ph);height:var(--ph);flex:0 0 auto;background:var(--band)}
+.pairbig figcaption{font-size:38px;font-weight:700;margin-top:16px;text-align:center}
+
+/* ===================== 07 the cache ===================== */
+/* One clip, nine columns, colour over coordinates — so a pair reads down a column. The band
+   hugs the clip's own aspect rather than stretching, which is what left the grey dead zones. */
+.pairwrap{flex:1;display:flex;align-items:center;min-height:0}
+.pairstrip{flex:1;display:flex;align-items:stretch;gap:20px;background:var(--band);
+  padding:20px;margin:0 calc(var(--m) * -1)}   /* full bleed: nine cells need the width */
+.pslblcol{flex:0 0 210px;display:flex;flex-direction:column;padding-left:36px}
+.pslbl{flex:1;display:flex;align-items:center;justify-content:flex-end;
+  font-size:34px;font-weight:700;color:var(--mute)}
+.pairstrip img{flex:1;min-width:0;object-fit:contain;align-self:center}
+
+/* ===================== 08 framework =====================
+   The paper's system figure is far too dense to survive 480p, so this cut is drawn from
+   scratch: four stages, big labels, and the two RCM inputs picked out in ochre. */
+.arch{--vh:calc(560px - var(--vcut));flex:1;display:flex;gap:20px;align-items:center;justify-content:center;
+  min-height:0}
+.arch .bigarrow{font-size:60px}
+.acol{display:flex;flex-direction:column;gap:16px;flex:0 0 auto}
+.acond{display:flex;align-items:center;gap:18px;background:var(--band);padding:10px 22px 10px 10px}
+/* identifier chips: the conditions are 9:16 and the cache sheet is wide, so every chip is
+   the same box and each sits inside it whole — the column stays aligned, nothing is cut */
+.acond img{width:96px;height:90px;object-fit:contain;background:#fff;flex:0 0 96px}
+.acond .vp{width:96px;height:90px;flex:0 0 96px;background:#fff}
+.acond img.fit{object-fit:contain;padding:6px}
+.acond span{font-size:34px;font-weight:700;color:var(--mute);white-space:nowrap}
+.acond.on{background:var(--wash);box-shadow:inset 6px 0 0 var(--ochre)}
+.acond.on span{color:var(--hot)}
+.ablock{flex:0 0 auto;background:#fff;border:5px solid var(--ink);padding:44px 34px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.ablock b{font-family:"Newsreader",Georgia,serif;font-size:54px;font-weight:600;line-height:1}
+.ablock span{font-size:32px;color:var(--mute);font-weight:600;white-space:nowrap}
+.ablock.dark{background:var(--ink);border-color:var(--ink)}
+.ablock.dark b{color:#fff}
+.ablock.dark span{color:#A6AEB8}
+
+/* ===================== 09 curriculum ===================== */
+.stages{flex:1;display:flex;gap:22px;align-items:stretch;justify-content:center;min-height:0}
+.stg{flex:1;display:flex;flex-direction:column;min-height:0;
+  border-top:6px solid var(--ink);padding-top:18px}
+.stgn{font-family:"Newsreader",Georgia,serif;font-size:46px;font-weight:700;margin:0 0 14px;
+  color:var(--ochre);line-height:1}
+.stgt{flex:1;display:flex;gap:8px;min-height:0}
+.stgt img{flex:1;height:100%;object-fit:cover;background:var(--band);min-width:0}
+.stgf{font-size:76px;font-weight:800;margin:18px 0 0;line-height:1;
+  font-variant-numeric:tabular-nums}
+.stgsrc{font-size:32px;color:var(--mute);margin:8px 0 0}
+.stgsrc em{font-style:normal;color:var(--ochre);font-weight:700}
+.chips{display:flex;gap:8px;margin-top:14px}
+.chip{font-size:30px;font-weight:700;padding:5px 15px;border:2.5px solid var(--rule);
+  color:#9AA1AA;white-space:nowrap}
+.chip.on{border-color:var(--ochre);color:var(--ochre);background:var(--wash)}
+
+/* ===================== 10 curation ===================== */
+.chain{flex:1;display:flex;gap:10px;align-items:center;min-height:0;
+  --vh:calc(440px - var(--vcut))}
+.chain .bigarrow{font-size:44px}
+.lnk{flex:1;display:flex;flex-direction:column;min-height:0}
+/* the V8 tiles are 450x320; cover-cropping them into a tall box loses the very thing
+   each one is meant to show, so keep their own aspect */
+.lnk img{width:100%;height:auto;flex:0 0 auto;background:var(--band)}
+/* the pipeline streams are 9:16 like everything else the model sees — no cropping */
+.lnk{align-items:center;text-align:center}
+.lnk .vp{height:var(--vh);width:calc(var(--vh) * 0.5625);flex:0 0 auto;background:var(--band)}
+.lnk b{font-size:36px;font-weight:700;margin-top:14px;line-height:1.1}
+.lnk span{font-size:30px;color:var(--mute);line-height:1.14;margin-top:3px}
+.lnk span em{font-style:italic;color:var(--ochre);font-weight:600}
+
+/* ===================== 11 metrics ===================== */
+.mcards{gap:44px;align-items:stretch}
+.mcard{flex:1;background:var(--band);padding:40px 44px;display:flex;flex-direction:column;
+  min-height:0}
+.mcard.ourcard{background:#fff;border:6px solid var(--ink)}
+.mtag{font-size:32px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mute);margin:0 0 16px}
+.mtag.ok{color:var(--ochre)}
+.mcard .msub{font-size:36px;line-height:1.2;color:var(--mute);margin:0 0 auto}
+.mcard .msub b{color:var(--ink);font-weight:700}
+.costs,.steps{margin:34px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;
+  gap:20px}
+.costs li{font-size:42px;color:var(--mute);padding-left:52px;position:relative}
+.costs li::before{content:"\00d7";position:absolute;left:0;top:-8px;font-size:52px;
+  color:var(--ochre);font-weight:700}
+.costs li b{color:var(--ink);font-weight:700}
+.steps{counter-reset:s}
+.steps li{counter-increment:s;font-size:40px;line-height:1.16;padding-left:66px;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:46px;height:46px;
+  border-radius:50%;background:var(--ink);color:#fff;font-size:28px;font-weight:800;
+  display:flex;align-items:center;justify-content:center}
+.steps li b{font-weight:700}
+
+/* ===================== 13 the numbers ===================== */
+.kpis{flex:1;display:flex;gap:34px;align-items:stretch}
+.kpi{flex:1;background:var(--band);padding:34px 30px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:18px}
+.kn{font-size:36px;font-weight:700;color:var(--mute);margin:0;text-align:center}
+.kn i{font-style:normal;color:var(--ochre);margin-left:8px}
+.kb{display:flex;align-items:center;gap:22px}
+.kb .bigarrow{font-size:56px;color:#B5BBC3}
+.kbase{font-size:76px;font-weight:600;color:#9AA1AA;font-variant-numeric:tabular-nums;
+  line-height:1}
+.kours{font-size:96px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+  line-height:1}
+.gt{font-size:30px;font-weight:700;color:var(--ochre);letter-spacing:.06em}
+.ksub{font-size:30px;line-height:1.16;color:var(--mute);margin:0;text-align:center;
+  max-width:15em}
+
+/* ===================== 14 ablation ===================== */
+.ablate{flex:1;display:flex;gap:56px;align-items:stretch;min-height:0}
+.ablate .striprow{flex:0 0 auto}
+.abnum{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;background:var(--band);padding:40px}
+.abbig{display:flex;align-items:center;gap:24px;margin:0}
+.abbig i{font-style:normal;font-size:66px;color:#B5BBC3}
+.abbig .was{font-size:88px;font-weight:600;color:#9AA1AA;font-variant-numeric:tabular-nums;
+  line-height:1}
+.abbig .now{font-size:120px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.abnum .cap{text-align:center;font-size:36px}
+
+/* ===================== 16 close ===================== */
+.close{flex:1;display:flex;gap:90px;padding:104px var(--m) 0;min-height:0;align-items:flex-start}
+.close>div:first-child{flex:1.5}
+.contribs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:34px}
+.contribs li{padding-left:44px;position:relative}
+.contribs li::before{content:"";position:absolute;left:0;top:20px;width:24px;height:6px;
+  background:var(--ochre)}
+.contribs b{display:block;font-family:"Newsreader",Georgia,serif;font-size:52px;
+  font-weight:600;line-height:1.04}
+.contribs span{display:block;font-size:34px;color:var(--mute);line-height:1.2;margin-top:6px}
+.qrblock{flex:0 0 auto;display:flex;flex-direction:column;gap:44px}
+.qrblock figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px}
+.qrblock img{width:236px;height:236px}
+.qrblock figcaption{font-size:34px;font-weight:700}
+.thanks{flex:0 0 auto;text-align:center;font-size:40px;font-weight:800;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ochre);margin:0;padding:0 var(--m) 92px}
+
+/* ==========================================================================
+   review page — chrome around the frames. Never affects .frame internals.
+   ========================================================================== */
+body.review{margin:0;background:#E9EAEC;color:var(--ink);
+  font-family:"Karla",system-ui,sans-serif}
+.rv-hd{padding:52px 56px 30px;max-width:1560px;margin:0 auto}
+.rv-hd h1{font-family:"Newsreader",Georgia,serif;font-size:46px;font-weight:600;margin:0;
+  letter-spacing:-.016em}
+.rv-hd p{font-size:19px;color:#5F6873;margin:10px 0 0;max-width:64em;line-height:1.45}
+.rv-hd .meta{display:flex;gap:34px;margin-top:26px;flex-wrap:wrap}
+.rv-hd .meta div{font-size:15px;color:#6E7681}
+.rv-hd .meta b{display:block;font-size:29px;color:var(--ink);
+  font-variant-numeric:tabular-nums;font-weight:800}
+.rv-note{max-width:1560px;margin:0 auto;padding:0 56px 20px}
+.rv-note p{background:#fff;border-left:5px solid var(--ochre);padding:18px 22px;margin:0 0 14px;
+  font-size:18px;line-height:1.45}
+.rv-note code{font-size:15px;background:#F1EFEA;padding:1px 6px}
+
+.cut{max-width:1560px;margin:0 auto;padding:26px 56px 44px}
+.cut-hd{display:flex;align-items:baseline;gap:18px;padding-bottom:14px;
+  border-bottom:2px solid var(--ink);margin-bottom:22px}
+.cut-hd .n{font-size:15px;font-weight:800;letter-spacing:.2em;color:var(--ochre)}
+.cut-hd h2{font-family:"Newsreader",Georgia,serif;font-size:34px;font-weight:600;margin:0}
+.cut-hd .tc{margin-left:auto;font-size:16px;color:#6E7681;font-variant-numeric:tabular-nums;
+  display:flex;gap:22px}
+.cut-hd .tc b{color:var(--ink)}
+
+.shot{width:1448px;height:calc(var(--fh) * .7541666);overflow:hidden;background:#fff;
+  box-shadow:0 2px 18px rgba(43,52,64,.16)}
+.shot .frame{transform:scale(.7541666);transform-origin:0 0}
+/* the 480p check: same frame at the size it will actually be watched */
+.shot.p480{width:854px;height:calc(var(--fh) * .4447917)}
+.shot.p480 .frame{transform:scale(.4447917)}
+.cut-bd{display:grid;grid-template-columns:1448px 1fr;gap:34px;align-items:start}
+.notes h4{font-family:"Karla",sans-serif;font-size:13px;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;color:#6E7681;margin:0 0 8px}
+.notes .script{background:#fff;padding:20px 22px;font-size:19px;line-height:1.5;
+  border-left:5px solid var(--ink);margin:0 0 18px}
+.notes .wc{font-size:14px;color:#6E7681;margin:0 0 22px}
+.notes .p480wrap{margin:0 0 22px}
+.notes ul{margin:0;padding-left:20px;font-size:14px;line-height:1.5;color:#5F6873}
+.notes ul li{margin-bottom:4px}
+.notes code{font-size:13px;background:#fff;padding:1px 5px}
+
+/* render mode: one bare frame, nothing else */
+body.render{margin:0;padding:0;background:#fff;overflow:hidden}
+body.render .rv-hd,body.render .rv-note,body.render .cut-hd,body.render .notes{display:none}
+body.render .cut{max-width:none;margin:0;padding:0}
+body.render .cut-bd{display:block}
+body.render .shot{width:1920px;height:var(--fh);box-shadow:none}
+body.render .shot .frame{transform:none}
+body.render .cut.off{display:none}
+
+/* ===================== 11 the reconstructions =====================
+   Three rows lifted out of the E-Rayzer figure: each method's generated frames rebuilt in 3D
+   and rendered back. Ours sits next to real so the match reads without being argued. */
+.recon{flex:1;display:flex;flex-direction:column;gap:16px;justify-content:center;
+  min-height:0;overflow:hidden}
+.rrow{display:flex;align-items:center;gap:24px;background:var(--band);padding:10px 22px}
+.rrow .rl{flex:0 0 260px;font-size:36px;font-weight:700;text-align:right;color:var(--mute)}
+.rrow img{flex:1;width:100%;height:calc(160px - var(--vcut) / 5);object-fit:contain;min-width:0;background:#fff}
+.rrow.ours{background:#fff;box-shadow:inset 8px 0 0 var(--ink)}
+.rrow.ours .rl{color:var(--ink)}
+.rrow.bad{box-shadow:inset 8px 0 0 var(--ochre)}
+.rrow.bad .rl{color:var(--hot)}
