@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bangya-poster pipeline</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#ffffff; --ink:#1d1f24; --muted:#6b7280;
+    --line:#d8dade; --accent:#3d5afe; --accent-soft:#e8ecff;
+    --lane-b:#0e9f6e; --lane-b-soft:#e3f5ee;
+    --lane-c:#b7791f; --lane-c-soft:#faf0dc;
+    --file:#eceef2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15171c; --card:#1f2229; --ink:#e8eaf0; --muted:#9aa1ad;
+      --line:#363b45; --accent:#7c93ff; --accent-soft:#2a3050;
+      --lane-b:#4cc596; --lane-b-soft:#1d3a30;
+      --lane-c:#d9a441; --lane-c-soft:#3a3120;
+      --file:#2a2e37;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:40px 20px 64px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 32px;max-width:64ch}
+  .sub code{background:var(--file);padding:1px 6px;border-radius:5px;font-size:13px}
+
+  .lanes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px}
+  .lane-head{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    padding:8px 12px;border-radius:8px;margin-bottom:14px;text-align:center}
+  .lh-a{background:var(--accent-soft);color:var(--accent)}
+  .lh-b{background:var(--lane-b-soft);color:var(--lane-b)}
+  .lh-c{background:var(--lane-c-soft);color:var(--lane-c)}
+
+  .col{display:flex;flex-direction:column}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;position:relative}
+  .card h3{margin:0 0 4px;font-size:14.5px;display:flex;gap:8px;align-items:baseline}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .num{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);
+    border-radius:6px;padding:1px 6px;flex:none}
+  .col-b .num{color:var(--lane-b);background:var(--lane-b-soft)}
+  .col-c .num{color:var(--lane-c);background:var(--lane-c-soft)}
+  .file{display:inline-block;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--file);border-radius:5px;padding:0 6px;margin:6px 4px 0 0}
+
+  .down{align-self:center;height:26px;width:2px;background:var(--line);position:relative;flex:none}
+  .down::after{content:"";position:absolute;bottom:-1px;left:-4px;border:5px solid transparent;
+    border-top-color:var(--line);border-bottom:none}
+
+  .handoff{margin:8px 0;border:1.5px dashed var(--line);border-radius:10px;
+    padding:8px 12px;font-size:12.5px;color:var(--muted);text-align:center}
+  .handoff b{color:var(--ink)}
+  .spacer{flex:1}
+
+  .loop{border-color:var(--accent)}
+  .loop-tag{position:absolute;top:-10px;right:12px;font-size:11px;font-weight:700;
+    background:var(--accent);color:#fff;border-radius:99px;padding:1px 9px}
+
+  .legend{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;
+    color:var(--muted);font-size:13px}
+  .legend b{color:var(--ink)}
+
+  @media (max-width:760px){
+    .lanes{grid-template-columns:1fr}
+    .lane-head{margin-top:22px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>bangya-poster pipeline</h1>
+  <p class="sub">How a paper becomes a print-ready poster. The sheet is one HTML file at
+  <code>1 CSS px = 1 mm</code>; <code>PLACEHOLDERS.md</code> is the canvas;
+  <code>feedback_N.md</code> carries each round — chat stays terse ("continue", "go do all the rest").</p>
+
+  <div class="lanes">
+    <div class="col col-a">
+      <div class="lane-head lh-a">Main session · design &amp; build</div>
+
+      <div class="card">
+        <h3><span class="num">1</span>Brief</h3>
+        <p>Paper source, the venue's print spec (size, colour profile, bleed, marks, fonts,
+        filename), project links. Fix the sheet and the 1 px = 1 mm rule.</p>
+        <span class="file">PLACEHOLDERS.md</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">2</span>Styleboard</h3>
+        <p>~6 identities as the <b>same</b> real fragment; "more styles"; the register
+        correction ("academic, multi-column, clean, not superficial"). User picks.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">3</span>Layout candidates</h3>
+        <p>Ranked space allocations as dotted wireframes. User picks one and prunes: one solid
+        bar, blocks dropped or fused, sub-results stay sub-results.</p>
+        <span class="file">c3.html → poster.html</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">4</span>Content</h3>
+        <p>Every word and table in one file; blocks by id (V/T/X/L/Q); words rationed;
+        decisions logged with revert cost.</p>
+        <span class="file">build/content.py</span><span class="file">build/poster.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">5</span>Wire-up &amp; size pass</h3>
+        <p>Replace every placeholder, then measure: overflow probe by real geometry, and a
+        rendered look. Cut the block, never the type.</p>
+        <span class="file">build/check.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card loop"><span class="loop-tag">⟳ ×6</span>
+        <h3><span class="num">6</span>Feedback rounds</h3>
+        <p>Numbered bullets per round; every item changed, rendered, looked at, ticked.
+        Sixty percent is geometry — check the render before replying.</p>
+        <span class="file">feedback_N.md</span>
+      </div>
+    </div>
+
+    <div class="col col-b">
+      <div class="lane-head lh-b">Assets · scripted from data</div>
+
+      <div class="card">
+        <h3><span class="num">A1</span>Measure the sources</h3>
+        <p>Resolutions and frame counts differ across methods. Find the evalset ↔ video
+        alignment by image match; verify shared cameras by compositing.</p>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">A2</span>Render tiles</h3>
+        <p>Frame grids by normalised position and fractional crop, tile size from the
+        container, <b>unlabelled</b> — labels stay live text, vector in print.</p>
+        <span class="file">build/assets.py</span><span class="file">assets/V*.png</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">A3</span>Vector &amp; generated</h3>
+        <p>QR codes as SVG, logos as true vector, illustrations via the user's image endpoint
+        with long prompts and semantic corrections.</p>
+        <span class="file">build/qr.py</span><span class="file">image_gen_api.json</span>
+      </div>
+
+      <div class="handoff">tiles ⇢ feed <b>Wire-up (5)</b> &amp; <b>Feedback (6)</b></div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="col col-c">
+      <div class="lane-head lh-c">Export &amp; verify</div>
+
+      <div class="card">
+        <h3><span class="num">E1</span>Print wrap</h3>
+        <p>Page = trim + bleed + crop marks; the sheet scaled by 96/25.4 into real
+        millimetres. Chrome prints it.</p>
+        <span class="file">build/print.py</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">E2</span>Ghostscript</h3>
+        <p>CMYK through the venue ICC, every font outlined, TrimBox / BleedBox / ArtBox and an
+        OutputIntent from a pdfmark prologue, FitPage to the exact trim.</p>
+        <span class="file">build/prologue.ps</span><span class="file">build/export_pdf.sh</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">E3</span>Verify from the bytes</h3>
+        <p>Box sizes in mm, zero embedded fonts, zero DeviceRGB, the intent — then rasterised
+        corners for marks and real glyphs, ink coverage, a resolution audit.</p>
+        <span class="file">5222_Liu_1400x1000mm.pdf</span>
+      </div>
+      <div class="down"></div>
+
+      <div class="card">
+        <h3><span class="num">E4</span>PNG &amp; thumbnail</h3>
+        <p>Chrome at the device scale that hits the pixel cap, with a kill timeout; the
+        thumbnail letterboxed on the paper colour to the exact size.</p>
+      </div>
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>Reference build:</b> ByteLOOM, ECCV 2026 — 140 × 100 cm, ~17 hours over two days,
+    six feedback rounds (43 items), one side session on direct-manipulation tooling.
+    Full record in <b>TRAJECTORY.md</b>; the reusable process in <b>SKILL.md</b>.
+  </div>
+</div>
+</body>
+</html>
